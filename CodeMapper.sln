@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29409.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeMapper", "CodeMapper\CodeMapper.csproj", "{44E5952D-D8D4-4ECF-BD38-3F3254405CEF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{76A6EDAD-3AE9-4E39-BFA1-E2F6EDA48912}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{44E5952D-D8D4-4ECF-BD38-3F3254405CEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44E5952D-D8D4-4ECF-BD38-3F3254405CEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44E5952D-D8D4-4ECF-BD38-3F3254405CEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44E5952D-D8D4-4ECF-BD38-3F3254405CEF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76A6EDAD-3AE9-4E39-BFA1-E2F6EDA48912}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76A6EDAD-3AE9-4E39-BFA1-E2F6EDA48912}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76A6EDAD-3AE9-4E39-BFA1-E2F6EDA48912}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76A6EDAD-3AE9-4E39-BFA1-E2F6EDA48912}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A5A2FA9D-1F24-4FDD-A47D-24E7F50B62B7}
+	EndGlobalSection
+EndGlobal
