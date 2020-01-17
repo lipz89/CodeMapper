@@ -3,7 +3,12 @@ using System.Collections.Generic;
 
 namespace CodeMapper.Commons
 {
-    internal static class Cache<TKey, TValue> where TValue : class
+    /// <summary>
+    /// 全局缓存
+    /// </summary>
+    /// <typeparam name="TKey"></typeparam>
+    /// <typeparam name="TValue"></typeparam>
+    public static class Cache<TKey, TValue> where TValue : class
     {
         private static IDictionary<TKey, TValue> dictionary = new Dictionary<TKey, TValue>();
 

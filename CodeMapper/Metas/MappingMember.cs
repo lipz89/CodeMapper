@@ -3,6 +3,9 @@ using System.Reflection;
 
 namespace CodeMapper.Metas
 {
+    /// <summary>
+    /// 成员映射规则
+    /// </summary>
     public sealed class MappingMember
     {
         private MappingMember()
@@ -40,11 +43,25 @@ namespace CodeMapper.Metas
                 IsExpressionMapping = true
             };
         }
-
+        /// <summary>
+        /// 成员被忽略
+        /// </summary>
         public bool Ignored { get; private set; }
+        /// <summary>
+        /// 成员映射
+        /// </summary>
         public bool IsMemberMapping { get; private set; }
+        /// <summary>
+        /// 表达式映射
+        /// </summary>
         public bool IsExpressionMapping { get; private set; }
+        /// <summary>
+        /// 源成员，只有成员映射时才有
+        /// </summary>
         public MemberInfo Source { get; private set; }
+        /// <summary>
+        /// 目标成员
+        /// </summary>
         public MemberInfo Target { get; private set; }
         internal TypePair TypePair { get; private set; }
 

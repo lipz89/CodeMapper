@@ -1,6 +1,6 @@
 ﻿namespace CodeMapper.Mappers
 {
-    public abstract class BaseMapper : IMapper
+    internal abstract class BaseMapper : IMapper
     {
         public object Map(object source, object target)
         {

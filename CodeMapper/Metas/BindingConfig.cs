@@ -109,8 +109,16 @@ namespace CodeMapper.Metas
             {
                 throw new ArgumentException("目标表达式不是一个公共属性或字段", nameof(target));
             }
-            ExpressionCache<TTarget, TProperty>.Add(targetName, source);
-            BindExpression(targetName);
+            var sourceName = GetMemberName(source);
+            if(sourceName == null)
+            {
+                ExpressionCache<TTarget, TProperty>.Add(targetName, source);
+                BindExpression(targetName);
+            }
+            else
+            {
+                BindFields(targetName, sourceName);
+            }
             return this;
         }
 

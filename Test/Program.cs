@@ -58,9 +58,19 @@ namespace Test
             model.M1.Parent = model;
             model.Items.ForEach(x => x.Parent = model);
 
-            CodeMapper.Mapper.BindCustom<Model1, Model2>(b => new Model2 { });
+            CodeMapper.Mapper.BindCustom<Model1, Model2>(b => new Model2
+            {
+                IDModel = b.ID,
+                ByteInt = 1
+            });
 
-            CodeMapper.Mapper.Bind<Model1, Model2>(b => b.Bind(x => x.Name, x => x.Name + "111"));
+            CodeMapper.Mapper.Bind<Model1, Model2>(b =>
+            {
+                b.Bind(x => x.Name, x => x.Name + "111");
+                b.Bind(x => x.Name, x => "111");
+                b.Bind(x => x.Name, x => x.Name);
+                b.Ignore(x => x.IDModel);
+            });
 
             var model2 = CodeMapper.Mapper.Map<Model1, Model2>(model);
             var model1 = CodeMapper.Mapper.Map<Model2, Model1>(model2);

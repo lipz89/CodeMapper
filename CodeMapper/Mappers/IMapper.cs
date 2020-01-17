@@ -1,6 +1,6 @@
 ﻿namespace CodeMapper.Mappers
 {
-    public interface IMapper
+    internal interface IMapper
     {
         object Map(object source, object target);
         void MapObjects(object source, object target);

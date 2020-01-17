@@ -64,6 +64,7 @@
     <Compile Include="Metas\IMapperConfig.cs" />
     <Compile Include="Metas\MappingMember.cs" />
     <Compile Include="Metas\MapperConfig.cs" />
+    <Compile Include="Metas\MultiMatchHandle.cs" />
     <Compile Include="Metas\TypePair.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

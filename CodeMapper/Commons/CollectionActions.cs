@@ -3,6 +3,11 @@ using System.Collections.Generic;
 
 namespace CodeMapper.Commons
 {
+    /// <summary>
+    /// 集合操作方法
+    /// </summary>
+    /// <typeparam name="TT"></typeparam>
+    /// <typeparam name="TItem"></typeparam>
     public class CollectionActions<TT, TItem> where TT : IEnumerable<TItem>
     {
         public static Action<TT, TItem> AddItem { get; private set; }

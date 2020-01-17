@@ -15,7 +15,7 @@ namespace CodeMapper.Metas
         public MapperConfig()
         {
             NameMatching = DefaultNameMatching;
-            BindWhenNeed = false;
+            BindWhenNeed = true;
             MultiMatchHandle = MultiMatchHandle.First;
         }
 
@@ -51,12 +51,5 @@ namespace CodeMapper.Metas
             BindWhenNeed = false;
             _ignoreMembers.Clear();
         }
-    }
-
-    public enum MultiMatchHandle
-    {
-        Ignore,
-        First,
-        Error,
     }
 }
