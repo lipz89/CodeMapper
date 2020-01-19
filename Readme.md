@@ -37,10 +37,12 @@ CodeMapper.Mapper.Config(config =>
 
         return false;
     });
+    // 全局忽略时间戳字段
+    config.GlobalIgnore<IModel>(x => x.RowVersion);
 });
 ```
 
-- 支持通过自定义转换函数映射
+- 支持通过自定义转换函数映射，优先级高于自动映射
 ```cs
 CodeMapper.Mapper.BindCustom<Model1, Model2>(b => new Model2
 {
@@ -61,6 +63,10 @@ CodeMapper.Mapper.Bind<Model1, Model2>(b =>
     b.Ignore(x => x.ID);
 });
 ```
+成员映射的优先级，从低到高：
+
+    通过成员名称匹配规则映射 -> 全局忽略 -> BindingConfig配置
+    BindingConfig配置的优先级按先后顺序，后设置的覆盖先设置的
 
 ```
 类型转换时优先使用自定义转换方法
@@ -73,5 +79,4 @@ CodeMapper.Mapper.Bind<Model1, Model2>(b =>
 普通类对象的映射通过ExpressionTree构建转换方法
 ```
 
-
-部分类和代码是参考的[TinyMapper](https://github.com/TinyMapper/TinyMapper "TinyMapper")
+部分类和代码参考了[TinyMapper](https://github.com/TinyMapper/TinyMapper "TinyMapper")
