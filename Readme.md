@@ -37,6 +37,8 @@ CodeMapper.Mapper.Config(config =>
 
         return false;
     });
+    // 全局忽略时间戳字段
+    config.GlobalIgnore<IModel>(x=>x.RowVersion);
 });
 ```
 
@@ -72,3 +74,5 @@ CodeMapper.Mapper.Bind<Model1, Model2>(b =>
 集合对象通过集合操作方法转换
 普通类对象的映射通过ExpressionTree构建转换方法
 ```
+
+部分类和代码参考了[TinyMapper](https://github.com/TinyMapper/TinyMapper "TinyMapper")

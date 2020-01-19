@@ -3,7 +3,6 @@
     internal interface IMapper
     {
         object Map(object source, object target);
-        void MapObjects(object source, object target);
     }
     //public interface IMapper<TSource, TTarget> : IMapper
     //{

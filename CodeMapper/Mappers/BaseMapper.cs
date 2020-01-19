@@ -7,10 +7,6 @@
             return MapCore(source, target);
         }
         protected abstract object MapCore(object source, object target);
-        public virtual void MapObjects(object source, object target)
-        {
-
-        }
     }
     //public abstract class Mapper<TSource, TTarget> : Mapper, IMapper<TSource, TTarget>
     //{

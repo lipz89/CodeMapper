@@ -10,7 +10,7 @@ namespace CodeMapper.Builders
 {
     internal class ExpressionBuilder : MapperBuilder
     {
-        private static readonly Func<object, object, object> defaultMapper = (x, y) => y;
+        //private static readonly Func<object, object, object> defaultMapper = (x, y) => y;
 
         private static readonly MethodInfo MapCoreMethod = typeof(MapperUtil).GetMethod("MapCore", BindingFlags.NonPublic | BindingFlags.Static);
         private static readonly MethodInfo MapCoresMethod = typeof(MapperUtil).GetMethod("MapCores", BindingFlags.NonPublic | BindingFlags.Static);
@@ -69,10 +69,10 @@ namespace CodeMapper.Builders
 
         private Func<object, object, object> CreateMapper(TypePair typePair, List<MappingMember> equals, List<MappingMember> mappers)
         {
-            if(equals.Count + mappers.Count == 0)
-            {
-                return defaultMapper;
-            }
+            //if(equals.Count + mappers.Count == 0)
+            //{
+            //    return defaultMapper;
+            //}
             return CreateMapperExpression(typePair, equals, mappers);
         }
         private Func<object, object, object> CreateMapperExpression(TypePair typePair, List<MappingMember> equals, List<MappingMember> mappers)
@@ -127,7 +127,7 @@ namespace CodeMapper.Builders
 
         private Action<object, object> CreateMapperRef(TypePair typePair, List<MappingMember> refs, List<MappingMember> colls, List<MappingMember> exps)
         {
-            if(refs.Count + colls.Count == 0)
+            if(refs.Count + colls.Count + exps.Count == 0)
             {
                 return null;
             }
