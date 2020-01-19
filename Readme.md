@@ -72,3 +72,6 @@ CodeMapper.Mapper.Bind<Model1, Model2>(b =>
 集合对象通过集合操作方法转换
 普通类对象的映射通过ExpressionTree构建转换方法
 ```
+
+
+部分类和代码是参考的[TinyMapper](https://github.com/TinyMapper/TinyMapper "TinyMapper")
