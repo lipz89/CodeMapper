@@ -13,6 +13,10 @@ namespace CodeMapper
         private static IMapperConfig mapperConfig = new MapperConfig();
         private static MapperBuilder targetMapperBuilder = MapperBuilder.GetMapperBuilder(mapperConfig);
 
+        internal static Func<object, string> Object2String { get; set; } = _ => _.ToString();
+
+        internal static Action<string> Logger { get; set; } = _ => { };
+
         internal static IMapper GetMapper(TypePair pair)
         {
             return Cache<TypePair, IMapper>.GetOrAdd(pair, () => GetMapperCore(pair));
@@ -245,6 +249,25 @@ namespace CodeMapper
         internal static TValue GetExpressionResult<TSource, TTarget, TValue>(string name, TSource source)
         {
             return ExpressionCache<TSource, TTarget>.GetValue<TValue>(name, source);
+        }
+
+        #endregion
+
+        #region Events
+
+
+        internal static void PreMap(object obj)
+        {
+            Logger?.Invoke($"源数据：\r\n{Object2String(obj)}");
+        }
+
+        internal static void PostMap(object obj)
+        {
+            Logger?.Invoke($"目标数据：\r\n{Object2String(obj)}");
+        }
+        internal static void OnError(Exception ex)
+        {
+            Logger?.Invoke($"映射发生错误：{ex.Message}\r\n堆栈信息：\r\n{ex.StackTrace}");
         }
 
         #endregion

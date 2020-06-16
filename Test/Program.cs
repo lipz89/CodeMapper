@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using Test.Models;
 
@@ -6,6 +7,17 @@ namespace Test
 {
     class Program
     {
+        private static JsonSerializerSettings serializerSettings = new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            DateFormatString = "yyyy-MM-dd HH:mm:ss",
+            Formatting = Formatting.Indented
+        };
+        private static void Log(object obj, string message)
+        {
+            var str = JsonConvert.SerializeObject(obj, serializerSettings);
+            Console.WriteLine($"{message}:\r\n{str}");
+        }
         static void Main(string[] args)
         {
             CodeMapper.Mapper.Config(config =>
@@ -26,6 +38,10 @@ namespace Test
 
                     return false;
                 });
+
+                config.SetObject2String(x => JsonConvert.SerializeObject(x, serializerSettings));
+
+                config.SetLogger(Console.WriteLine);
             });
 
             var model = new Model1
@@ -74,6 +90,8 @@ namespace Test
 
             var model2 = CodeMapper.Mapper.Map<Model1, Model2>(model);
             var model1 = CodeMapper.Mapper.Map<Model2, Model1>(model2);
+
+            Console.WriteLine("all test end");
             Console.Read();
         }
     }

@@ -84,7 +84,15 @@ namespace CodeMapper
         {
             try
             {
-                return MapperUtil.MapCore<TSource, TTarget>(source, target);
+                MapperUtil.PreMap(source);
+                target = MapperUtil.MapCore<TSource, TTarget>(source, target);
+                MapperUtil.PostMap(target);
+                return target;
+            }
+            catch(Exception ex)
+            {
+                MapperUtil.OnError(ex);
+                throw;
             }
             finally
             {
@@ -102,7 +110,15 @@ namespace CodeMapper
         {
             try
             {
-                return MapperUtil.MapCores<TSource, TTarget>(source);
+                MapperUtil.PreMap(source);
+                var target = MapperUtil.MapCores<TSource, TTarget>(source);
+                MapperUtil.PostMap(target);
+                return target;
+            }
+            catch(Exception ex)
+            {
+                MapperUtil.OnError(ex);
+                throw;
             }
             finally
             {

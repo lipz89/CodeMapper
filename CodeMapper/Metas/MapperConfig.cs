@@ -51,5 +51,14 @@ namespace CodeMapper.Metas
             BindWhenNeed = false;
             _ignoreMembers.Clear();
         }
+
+        public void SetObject2String(Func<object, string> action)
+        {
+            MapperUtil.Object2String = action ?? (_ => _.ToString());
+        }
+        public void SetLogger(Action<string> action)
+        {
+            MapperUtil.Logger = action ?? (_ => { });
+        }
     }
 }

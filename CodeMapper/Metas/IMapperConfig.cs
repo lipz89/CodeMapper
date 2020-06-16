@@ -26,6 +26,10 @@ namespace CodeMapper.Metas
         /// </summary>
         /// <param name="nameMatching"></param>
         void SetNameMatching(Func<string, string, bool> nameMatching);
+
+        void SetObject2String(Func<object, string> action);
+
+        void SetLogger(Action<string> action);
         /// <summary>
         /// 全局忽略成员
         /// </summary>
