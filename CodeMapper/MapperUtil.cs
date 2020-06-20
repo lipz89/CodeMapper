@@ -10,7 +10,7 @@ namespace CodeMapper
 {
     internal static class MapperUtil
     {
-        private static IMapperConfig mapperConfig = new MapperConfig();
+        private static MapperConfig mapperConfig = new MapperConfig();
         private static MapperBuilder targetMapperBuilder = MapperBuilder.GetMapperBuilder(mapperConfig);
 
         internal static Func<object, string> Object2String { get; set; } = _ => _.ToString();
@@ -45,47 +45,6 @@ namespace CodeMapper
             }
             return new ObjectMapper(pair);
         }
-
-        //private static IMapper GetClassMapper(TypePair pair)
-        //{
-        //    var className = pair.GetClassName();
-        //    return IocMappers.Instance.ClassMappers.FirstOrDefault(x => x.GetType().Name == className);
-        //}
-        //internal static IMapper<TSource, TTarget> GetMapper<TSource, TTarget>()
-        //{
-        //    TypePair pair = TypePair.Create<TSource, TTarget>();
-        //    IMapper mapper;
-        //    var has = _mappers.TryGetValue(pair, out mapper);
-        //    if(!has)
-        //    {
-        //        var imapper = GetMapperCore<TSource, TTarget>();
-        //        _mappers.Add(pair, imapper);
-        //        return imapper;
-        //    }
-        //    return (IMapper<TSource, TTarget>)mapper;
-        //}
-
-        //private static IMapper<TSource, TTarget> GetMapperCore<TSource, TTarget>()
-        //{
-        //    TypePair pair = TypePair.Create<TSource, TTarget>();
-        //    if(Converter.IsConvertibleType(pair))
-        //    {
-        //        return new ConvertibleMapper<TSource, TTarget>();
-        //    }
-        //    if(pair.IsEnumerableTypes)
-        //    {
-        //        return new CollectionMapper<TSource, TTarget>();
-        //    }
-        //    return GetClassMapper<TSource, TTarget>();
-        //}
-
-        //private static IMapper<TSource, TTarget> GetClassMapper<TSource, TTarget>()
-        //{
-        //    TypePair pair = TypePair.Create<TSource, TTarget>();
-        //    var className = pair.GetClassName();
-        //    var mapper = IocMappers.Instance.ClassMappers.FirstOrDefault(x => x.GetType().Name == className);
-        //    return mapper as IMapper<TSource, TTarget>;
-        //}
 
         #region Bind & Config
         internal static void Bind(TypePair typePair)
@@ -163,6 +122,66 @@ namespace CodeMapper
         public static void Config(Action<IMapperConfig> config)
         {
             config(mapperConfig);
+            mapperConfig.IsStarted = true;
+        }
+
+        #endregion
+
+        #region Map
+        /// <summary>
+        /// 转换对象
+        /// </summary>
+        /// <typeparam name="TSource">源类型</typeparam>
+        /// <typeparam name="TTarget">目标类型</typeparam>
+        /// <param name="source">源对象</param>
+        /// <param name="target">目标对象</param>
+        /// <returns>返回转换结果</returns>
+        public static TTarget Map<TSource, TTarget>(TSource source, TTarget target = default)
+        {
+            try
+            {
+                MapperUtil.PreMap(source);
+                target = MapperUtil.MapCore<TSource, TTarget>(source, target);
+                MapperUtil.PostMap(target);
+                return target;
+            }
+            catch(Exception ex)
+            {
+                MapperUtil.OnError(ex);
+                throw;
+            }
+            finally
+            {
+                if(mapperConfig.AutoMapReferenceProperty)
+                    MapperCache.Clear();
+            }
+        }
+        /// <summary>
+        /// 批量转换
+        /// </summary>
+        /// <typeparam name="TSource">源类型</typeparam>
+        /// <typeparam name="TTarget">目标类型</typeparam>
+        /// <param name="source">源对象集合</param>
+        /// <returns>转换结果</returns>
+        public static IEnumerable<TTarget> Map<TSource, TTarget>(IEnumerable<TSource> source)
+        {
+            try
+            {
+                MapperUtil.PreMap(source);
+                var target = MapperUtil.MapCores<TSource, TTarget>(source);
+                MapperUtil.PostMap(target);
+                return target;
+            }
+            catch(Exception ex)
+            {
+                MapperUtil.OnError(ex);
+                throw;
+            }
+            finally
+            {
+                if(mapperConfig.AutoMapReferenceProperty)
+                    MapperCache.Clear();
+            }
         }
 
         #endregion
@@ -175,9 +194,10 @@ namespace CodeMapper
             {
                 return target;
             }
+            MapperUtil.PreMap(source);
             TypePair pair = TypePair.Create<TSource, TTarget>();
             IMapper mapper = MapperUtil.GetMapper(pair);
-            return (TTarget)mapper.Map(source, target);
+            return (TTarget)mapper.Map(source, target, mapperConfig.AutoMapReferenceProperty);
         }
 
         internal static IEnumerable<TTarget> MapCores<TSource, TTarget>(IEnumerable<TSource> source)
@@ -191,7 +211,7 @@ namespace CodeMapper
             var list = new List<TTarget>();
             foreach(TSource item in source)
             {
-                TTarget rst = (TTarget)mapper.Map(item, default);
+                TTarget rst = (TTarget)mapper.Map(item, default, mapperConfig.AutoMapReferenceProperty);
                 list.Add(rst);
             }
             return list;
@@ -255,17 +275,16 @@ namespace CodeMapper
 
         #region Events
 
-
-        internal static void PreMap(object obj)
+        private static void PreMap(object obj)
         {
             Logger?.Invoke($"源数据：\r\n{Object2String(obj)}");
         }
 
-        internal static void PostMap(object obj)
+        private static void PostMap(object obj)
         {
             Logger?.Invoke($"目标数据：\r\n{Object2String(obj)}");
         }
-        internal static void OnError(Exception ex)
+        private static void OnError(Exception ex)
         {
             Logger?.Invoke($"映射发生错误：{ex.Message}\r\n堆栈信息：\r\n{ex.StackTrace}");
         }

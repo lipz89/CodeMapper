@@ -9,6 +9,9 @@ namespace CodeMapper.Metas
 {
     internal sealed class MapperConfig : IMapperConfig
     {
+        internal bool IsStarted = false;
+        private bool bindWhenNeed;
+        private MultiMatchHandle multiMatchHandle;
         private readonly List<MemberInfo> _ignoreMembers = new List<MemberInfo>();
         public static readonly Func<string, string, bool> DefaultNameMatching = (source, target) => string.Equals(source, target, StringComparison.Ordinal);
 
@@ -16,15 +19,43 @@ namespace CodeMapper.Metas
         {
             NameMatching = DefaultNameMatching;
             BindWhenNeed = true;
+            AutoMapReferenceProperty = false;
             MultiMatchHandle = MultiMatchHandle.First;
         }
 
         public Func<string, string, bool> NameMatching { get; private set; }
-        public bool BindWhenNeed { get; set; } = false;
-        public MultiMatchHandle MultiMatchHandle { get; set; }
+        public bool BindWhenNeed
+        {
+            get
+            {
+                return bindWhenNeed;
+            }
+
+            set
+            {
+                if(!IsStarted)
+                    bindWhenNeed = value;
+            }
+        }
+        public MultiMatchHandle MultiMatchHandle
+        {
+            get
+            {
+                return multiMatchHandle;
+            }
+
+            set
+            {
+                if(!IsStarted)
+                    this.multiMatchHandle = value;
+            }
+        }
+        public bool AutoMapReferenceProperty { get; set; }
 
         public void GlobalIgnore<T>(Expression<Func<T, dynamic>> member)
         {
+            if(IsStarted)
+                return;
             var memberInfo = member.GetMemberInfo();
             if(memberInfo != null)
             {
@@ -34,6 +65,8 @@ namespace CodeMapper.Metas
 
         public void SetNameMatching(Func<string, string, bool> nameMatching)
         {
+            if(IsStarted)
+                return;
             NameMatching = nameMatching ?? DefaultNameMatching;
         }
 
@@ -44,12 +77,6 @@ namespace CodeMapper.Metas
                 return true;
             }
             return _ignoreMembers.Any(x => x.Name == member.Name && x.GetMemberType() == member.GetMemberType());
-        }
-        public void Clear()
-        {
-            NameMatching = DefaultNameMatching;
-            BindWhenNeed = false;
-            _ignoreMembers.Clear();
         }
 
         public void SetObject2String(Func<object, string> action)

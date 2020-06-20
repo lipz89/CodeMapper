@@ -1,6 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿using CodeMapper.Mappers;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Test.Models;
 
 namespace Test
@@ -22,6 +24,7 @@ namespace Test
         {
             CodeMapper.Mapper.Config(config =>
             {
+                config.AutoMapReferenceProperty = false;
                 config.BindWhenNeed = true;
                 config.SetNameMatching((x, y) =>
                 {
@@ -39,9 +42,9 @@ namespace Test
                     return false;
                 });
 
-                config.SetObject2String(x => JsonConvert.SerializeObject(x, serializerSettings));
+                //config.SetObject2String(x => JsonConvert.SerializeObject(x, serializerSettings));
 
-                config.SetLogger(Console.WriteLine);
+                //config.SetLogger(Console.WriteLine);
             });
 
             var model = new Model1
@@ -90,6 +93,46 @@ namespace Test
 
             var model2 = CodeMapper.Mapper.Map<Model1, Model2>(model);
             var model1 = CodeMapper.Mapper.Map<Model2, Model1>(model2);
+
+            var list1 = new List<Model1>();
+            var j = JsonConvert.SerializeObject(model,new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+            for(int i = 0; i < 10000; i++)
+            {
+                var m = JsonConvert.DeserializeObject<Model1>(j);
+                list1.Add(m);
+                //Console.WriteLine(ObjectMapper.GetKey(m));
+            }
+            for(int i = 0; i < 10; i++)
+            {
+                var st = Stopwatch.StartNew();
+                var list2 = CodeMapper.Mapper.Map<Model1, Model2>(list1);
+                var list3 = CodeMapper.Mapper.Map<Model2, Model1>(list2);
+                st.Stop();
+                Console.WriteLine("codemapper映射" + st.ElapsedMilliseconds);
+                //break;
+            }
+
+            //var listss = new List<MPModel>();
+            //for(int i = 0; i < 1000; i++)
+            //{
+            //    listss.Add(new MPModel());
+            //}
+
+            //var st = Stopwatch.StartNew();
+
+            //var listt2 = CodeMapper.Mapper.Map<MPModel, MPModel2>(listss);
+
+            //st.Stop();
+
+            //var st2 = Stopwatch.StartNew();
+
+            //var json = JsonConvert.SerializeObject(listss);
+            //var listt3 = JsonConvert.DeserializeObject<List<MPModel2>>(json);
+
+            //st2.Stop();
+
+            //Console.WriteLine("codemapper映射" + st.ElapsedMilliseconds);
+            //Console.WriteLine("json序列化映射" + st2.ElapsedMilliseconds);
 
             Console.WriteLine("all test end");
             Console.Read();

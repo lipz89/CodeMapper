@@ -10,15 +10,17 @@ namespace CodeMapper.Builders
 {
     internal class ExpressionBuilder : MapperBuilder
     {
-        //private static readonly Func<object, object, object> defaultMapper = (x, y) => y;
+        private static readonly Func<object, object, object> defaultMapper = (x, y) => y;
 
         private static readonly MethodInfo MapCoreMethod = typeof(MapperUtil).GetMethod("MapCore", BindingFlags.NonPublic | BindingFlags.Static);
         private static readonly MethodInfo MapCoresMethod = typeof(MapperUtil).GetMethod("MapCores", BindingFlags.NonPublic | BindingFlags.Static);
         private static readonly MethodInfo MoveCollectionMethod = typeof(MapperUtil).GetMethod("MoveCollection", BindingFlags.NonPublic | BindingFlags.Static);
         private static readonly MethodInfo GetExpressionResultMethod = typeof(MapperUtil).GetMethod("GetExpressionResult", BindingFlags.NonPublic | BindingFlags.Static);
+        private readonly IMapperConfig config;
 
         public ExpressionBuilder(IMapperConfig config) : base(config)
         {
+            this.config = config;
         }
 
         protected override void BuildCore(TypePair typePair, BindingConfig bindingConfig)
@@ -47,13 +49,16 @@ namespace CodeMapper.Builders
                     {
                         mappingMembers.Add(item);
                     }
-                    else if(memberTypePair.IsEnumerableTypes)
+                    else if(config.AutoMapReferenceProperty)
                     {
-                        collectionMembers.Add(item);
-                    }
-                    else
-                    {
-                        refMembers.Add(item);
+                        if(memberTypePair.IsEnumerableTypes)
+                        {
+                            collectionMembers.Add(item);
+                        }
+                        else
+                        {
+                            refMembers.Add(item);
+                        }
                     }
                 }
             }
@@ -69,10 +74,10 @@ namespace CodeMapper.Builders
 
         private Func<object, object, object> CreateMapper(TypePair typePair, List<MappingMember> equals, List<MappingMember> mappers)
         {
-            //if(equals.Count + mappers.Count == 0)
-            //{
-            //    return defaultMapper;
-            //}
+            if(equals.Count + mappers.Count == 0)
+            {
+                return defaultMapper;
+            }
             return CreateMapperExpression(typePair, equals, mappers);
         }
         private Func<object, object, object> CreateMapperExpression(TypePair typePair, List<MappingMember> equals, List<MappingMember> mappers)

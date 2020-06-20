@@ -2,7 +2,9 @@
 using CodeMapper.Metas;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
+[assembly:InternalsVisibleTo("Test")]
 namespace CodeMapper.Mappers
 {
     internal class ObjectMapper : BaseMapper
@@ -15,6 +17,10 @@ namespace CodeMapper.Mappers
             innerMapperRef = Cache<TypePair, Action<object, object>>.Get(pair);
         }
         protected override object MapCore(object source, object target)
+        {
+            return innerMapper(source, target);
+        }
+        protected override object MapCoreWithReferenceProperty(object source, object target)
         {
             var key = GetKey(source);
             object rst;
@@ -29,7 +35,7 @@ namespace CodeMapper.Mappers
             return result;
         }
 
-        private static long GetKey(object instance)
+        public static long GetKey(object instance)
         {
             if(instance == null)
                 return 0;

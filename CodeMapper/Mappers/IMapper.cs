@@ -2,11 +2,6 @@
 {
     internal interface IMapper
     {
-        object Map(object source, object target);
+        object Map(object source, object target,bool autoMapReferenceProperty);
     }
-    //public interface IMapper<TSource, TTarget> : IMapper
-    //{
-    //    TTarget Map(TSource source, TTarget target);
-    //    void MapObjects(TSource source, TTarget target);
-    //}
 }

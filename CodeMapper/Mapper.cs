@@ -1,5 +1,4 @@
-﻿using CodeMapper.Commons;
-using CodeMapper.Metas;
+﻿using CodeMapper.Metas;
 using System;
 using System.Collections.Generic;
 
@@ -82,22 +81,7 @@ namespace CodeMapper
         /// <returns>返回转换结果</returns>
         public static TTarget Map<TSource, TTarget>(TSource source, TTarget target = default)
         {
-            try
-            {
-                MapperUtil.PreMap(source);
-                target = MapperUtil.MapCore<TSource, TTarget>(source, target);
-                MapperUtil.PostMap(target);
-                return target;
-            }
-            catch(Exception ex)
-            {
-                MapperUtil.OnError(ex);
-                throw;
-            }
-            finally
-            {
-                MapperCache.Clear();
-            }
+            return MapperUtil.Map<TSource, TTarget>(source, target);
         }
         /// <summary>
         /// 批量转换
@@ -108,22 +92,7 @@ namespace CodeMapper
         /// <returns>转换结果</returns>
         public static IEnumerable<TTarget> Map<TSource, TTarget>(IEnumerable<TSource> source)
         {
-            try
-            {
-                MapperUtil.PreMap(source);
-                var target = MapperUtil.MapCores<TSource, TTarget>(source);
-                MapperUtil.PostMap(target);
-                return target;
-            }
-            catch(Exception ex)
-            {
-                MapperUtil.OnError(ex);
-                throw;
-            }
-            finally
-            {
-                MapperCache.Clear();
-            }
+            return MapperUtil.Map<TSource, TTarget>(source);
         }
         #endregion
     }

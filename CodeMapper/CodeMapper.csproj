@@ -7,8 +7,9 @@
     <RepositoryUrl>https://github.com/lipz89/CodeMapper</RepositoryUrl>
     <Description>模型映射</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
     <Authors>lipz8900</Authors>
+    <AssemblyVersion>1.0.3.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>

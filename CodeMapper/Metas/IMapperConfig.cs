@@ -18,6 +18,10 @@ namespace CodeMapper.Metas
         /// </summary>
         bool BindWhenNeed { get; set; }
         /// <summary>
+        /// 自动映射引用类型的属性
+        /// </summary>
+        bool AutoMapReferenceProperty { get; set; }
+        /// <summary>
         /// 发现多个匹配的映射源成员时的处理方式
         /// </summary>
         MultiMatchHandle MultiMatchHandle { get; set; }
@@ -42,9 +46,5 @@ namespace CodeMapper.Metas
         /// <param name="member"></param>
         /// <returns></returns>
         bool IsGlobalIgnore(MemberInfo member);
-        /// <summary>
-        /// 设置为默认配置
-        /// </summary>
-        void Clear();
     }
 }
