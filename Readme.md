@@ -19,6 +19,8 @@ Stack<T>
 ```cs
 CodeMapper.Mapper.Config(config =>
 {
+    //默认false,为true时表示自动映射引用属性（会降低性能）
+    config.AutoMapReferenceProperty = false;
     //默认true,如果设置为false，需要为类型指定转换规则
     config.BindWhenNeed = true;
     //成员名称匹配规则映射
