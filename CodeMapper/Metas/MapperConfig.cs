@@ -11,7 +11,9 @@ namespace CodeMapper.Metas
     {
         internal bool IsStarted = false;
         private bool bindWhenNeed;
+        private int maxDepth = 3;
         private MultiMatchHandle multiMatchHandle;
+        private ReferencePropertyHandle referencePropertyHandle;
         private readonly List<MemberInfo> _ignoreMembers = new List<MemberInfo>();
         public static readonly Func<string, string, bool> DefaultNameMatching = (source, target) => string.Equals(source, target, StringComparison.Ordinal);
 
@@ -19,38 +21,32 @@ namespace CodeMapper.Metas
         {
             NameMatching = DefaultNameMatching;
             BindWhenNeed = true;
-            AutoMapReferenceProperty = false;
             MultiMatchHandle = MultiMatchHandle.First;
+            ReferencePropertyHandle = ReferencePropertyHandle.Ignore;
         }
 
         public Func<string, string, bool> NameMatching { get; private set; }
         public bool BindWhenNeed
         {
-            get
-            {
-                return bindWhenNeed;
-            }
-
-            set
-            {
-                if(!IsStarted)
-                    bindWhenNeed = value;
-            }
+            get { return bindWhenNeed; }
+            set { if(!IsStarted) bindWhenNeed = value; }
+        }
+        public int MaxDepth
+        {
+            get { return maxDepth; }
+            set { if(!IsStarted) maxDepth = value.Between(1, 10); }
         }
         public MultiMatchHandle MultiMatchHandle
         {
-            get
-            {
-                return multiMatchHandle;
-            }
-
-            set
-            {
-                if(!IsStarted)
-                    this.multiMatchHandle = value;
-            }
+            get { return multiMatchHandle; }
+            set { if(!IsStarted) this.multiMatchHandle = value; }
         }
-        public bool AutoMapReferenceProperty { get; set; }
+
+        public ReferencePropertyHandle ReferencePropertyHandle
+        {
+            get { return referencePropertyHandle; }
+            set { if(!IsStarted) this.referencePropertyHandle = value; }
+        }
 
         public void GlobalIgnore<T>(Expression<Func<T, dynamic>> member)
         {

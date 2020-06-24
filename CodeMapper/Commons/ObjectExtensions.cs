@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 
 namespace CodeMapper.Commons
 {
@@ -27,6 +28,29 @@ namespace CodeMapper.Commons
                 count++;
             }
             return count;
+        }
+
+        public static T Between<T>(this T value, T min, T max) where T : IComparable<T>
+        {
+            if(min.CompareTo(max) > 0)
+            {
+                var tmp = max;
+                max = min;
+                min = tmp;
+            }
+            if(min.CompareTo(value) > 0)
+            {
+                return min;
+            }
+            if(value.CompareTo(max) > 0)
+            {
+                return max;
+            }
+            return value;
+        }
+        public static bool IsBetween<T>(this T value, T min, T max) where T : IComparable<T>
+        {
+            return value.CompareTo(value.Between(min, max)) == 0;
         }
     }
 }

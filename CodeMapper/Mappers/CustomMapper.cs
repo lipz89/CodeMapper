@@ -1,6 +1,7 @@
 ﻿using CodeMapper.Commons;
 using CodeMapper.Metas;
 using System;
+using System.Collections.Generic;
 
 namespace CodeMapper.Mappers
 {
@@ -11,28 +12,28 @@ namespace CodeMapper.Mappers
         {
             innerMapper = CustomMapper.Get(pair);
         }
-        protected override object MapCore(object source, object target)
+        protected override object MapCore(object source, object target, int depth)
         {
             return innerMapper(source);
         }
 
         internal static void Add(TypePair pair, Func<object, object> mapper)
         {
-            Cache<TypePair, Func<object, object>>.Add(pair, mapper);
+            Converter.Cache.Add(pair, mapper);
         }
 
         internal static Func<object, object> Get(TypePair pair)
         {
-            return Cache<TypePair, Func<object, object>>.Get(pair);
+            return Converter.Cache.Get(pair);
         }
 
         internal static bool Has(TypePair pair)
         {
-            return Cache<TypePair, Func<object, object>>.HasKey(pair);
+            return Converter.Cache.HasKey(pair);
         }
         internal static void Remove(TypePair pair)
         {
-            Cache<TypePair, Func<object, object>>.Remove(pair);
+            Converter.Cache.Remove(pair);
         }
     }
 }

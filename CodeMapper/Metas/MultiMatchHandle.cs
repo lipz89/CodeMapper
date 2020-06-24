@@ -5,17 +5,11 @@
     /// </summary>
     public enum MultiMatchHandle
     {
-        /// <summary>
-        /// 忽略该成员的映射
-        /// </summary>
+        /// <summary> 忽略该成员的映射 </summary>
         Ignore,
-        /// <summary>
-        /// 映射第一个匹配的成员
-        /// </summary>
+        /// <summary> 映射第一个匹配的成员 </summary>
         First,
-        /// <summary>
-        /// 报错
-        /// </summary>
+        /// <summary> 报错 </summary>
         Error,
     }
 }

@@ -18,9 +18,13 @@ namespace CodeMapper.Metas
         /// </summary>
         bool BindWhenNeed { get; set; }
         /// <summary>
-        /// 自动映射引用类型的属性
+        /// 引用类型属性的处理方式，默认Ignore，执行为Depth时需要指定MaxDepth
         /// </summary>
-        bool AutoMapReferenceProperty { get; set; }
+        ReferencePropertyHandle ReferencePropertyHandle { get; set; }
+        /// <summary>
+        /// 引用属性映射深度，介于1-10之间，默认3
+        /// </summary>
+        int MaxDepth { get; set; }
         /// <summary>
         /// 发现多个匹配的映射源成员时的处理方式
         /// </summary>

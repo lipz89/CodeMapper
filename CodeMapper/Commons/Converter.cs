@@ -7,7 +7,7 @@ namespace CodeMapper.Commons
 {
     internal static class Converter
     {
-        private static readonly Dictionary<TypePair, Func<object, object>> _dic = new Dictionary<TypePair, Func<object, object>>();
+        public static readonly Cache<TypePair, Func<object, object>> Cache = new Cache<TypePair, Func<object, object>>();
 
         public static bool IsConvertibleType(TypePair typePair)
         {
@@ -84,7 +84,7 @@ namespace CodeMapper.Commons
 
         public static Func<object, object> Get(TypePair pair)
         {
-            return Cache<TypePair, Func<object, object>>.GetOrAdd(pair, () => GetConverter(pair));
+            return Cache.GetOrAdd(pair, () => GetConverter(pair));
         }
     }
 }

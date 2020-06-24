@@ -11,7 +11,7 @@ namespace CodeMapper.Mappers
         {
             innerMapper = Converter.Get(pair);
         }
-        protected override object MapCore(object source, object target)
+        protected override object MapCore(object source, object target, int depth)
         {
             return innerMapper(source);
         }

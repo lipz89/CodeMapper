@@ -10,8 +10,9 @@ namespace CodeMapper
 {
     internal static class MapperUtil
     {
-        private static MapperConfig mapperConfig = new MapperConfig();
-        private static MapperBuilder targetMapperBuilder = MapperBuilder.GetMapperBuilder(mapperConfig);
+        private static readonly MapperConfig mapperConfig = new MapperConfig();
+        private static readonly MapperBuilder targetMapperBuilder = MapperBuilder.GetMapperBuilder(mapperConfig);
+        private static readonly Cache<TypePair, IMapper> Cache = new Cache<TypePair, IMapper>();
 
         internal static Func<object, string> Object2String { get; set; } = _ => _.ToString();
 
@@ -19,7 +20,7 @@ namespace CodeMapper
 
         internal static IMapper GetMapper(TypePair pair)
         {
-            return Cache<TypePair, IMapper>.GetOrAdd(pair, () => GetMapperCore(pair));
+            return Cache.GetOrAdd(pair, () => GetMapperCore(pair));
         }
 
         private static IMapper GetMapperCore(TypePair pair)
@@ -141,7 +142,7 @@ namespace CodeMapper
             try
             {
                 MapperUtil.PreMap(source);
-                target = MapperUtil.MapCore<TSource, TTarget>(source, target);
+                target = MapperUtil.MapCore<TSource, TTarget>(source, target, 0);
                 MapperUtil.PostMap(target);
                 return target;
             }
@@ -152,7 +153,7 @@ namespace CodeMapper
             }
             finally
             {
-                if(mapperConfig.AutoMapReferenceProperty)
+                if(mapperConfig.ReferencePropertyHandle == ReferencePropertyHandle.Loop)
                     MapperCache.Clear();
             }
         }
@@ -168,7 +169,7 @@ namespace CodeMapper
             try
             {
                 MapperUtil.PreMap(source);
-                var target = MapperUtil.MapCores<TSource, TTarget>(source);
+                var target = MapperUtil.MapCores<TSource, TTarget>(source, 0);
                 MapperUtil.PostMap(target);
                 return target;
             }
@@ -179,7 +180,7 @@ namespace CodeMapper
             }
             finally
             {
-                if(mapperConfig.AutoMapReferenceProperty)
+                if(mapperConfig.ReferencePropertyHandle == ReferencePropertyHandle.Loop)
                     MapperCache.Clear();
             }
         }
@@ -188,21 +189,20 @@ namespace CodeMapper
 
         #region MapCore
 
-        internal static TTarget MapCore<TSource, TTarget>(TSource source, TTarget target = default)
+        internal static TTarget MapCore<TSource, TTarget>(TSource source, TTarget target, int depth)
         {
-            if(source == null)
+            if(source == null || depth > mapperConfig.MaxDepth)
             {
                 return target;
             }
-            MapperUtil.PreMap(source);
             TypePair pair = TypePair.Create<TSource, TTarget>();
             IMapper mapper = MapperUtil.GetMapper(pair);
-            return (TTarget)mapper.Map(source, target, mapperConfig.AutoMapReferenceProperty);
+            return (TTarget)mapper.Map(source, target, mapperConfig.ReferencePropertyHandle, depth + 1);
         }
 
-        internal static IEnumerable<TTarget> MapCores<TSource, TTarget>(IEnumerable<TSource> source)
+        internal static IEnumerable<TTarget> MapCores<TSource, TTarget>(IEnumerable<TSource> source, int depth)
         {
-            if(source == null)
+            if(source == null || depth > mapperConfig.MaxDepth)
             {
                 return null;
             }
@@ -211,7 +211,7 @@ namespace CodeMapper
             var list = new List<TTarget>();
             foreach(TSource item in source)
             {
-                TTarget rst = (TTarget)mapper.Map(item, default, mapperConfig.AutoMapReferenceProperty);
+                TTarget rst = (TTarget)mapper.Map(item, default, mapperConfig.ReferencePropertyHandle, depth + 1);
                 list.Add(rst);
             }
             return list;

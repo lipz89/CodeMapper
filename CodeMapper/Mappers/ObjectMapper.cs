@@ -1,26 +1,27 @@
-﻿using CodeMapper.Commons;
+﻿using CodeMapper.Builders;
+using CodeMapper.Commons;
 using CodeMapper.Metas;
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
-[assembly:InternalsVisibleTo("Test")]
 namespace CodeMapper.Mappers
 {
     internal class ObjectMapper : BaseMapper
     {
-        private readonly Func<object, object, object> innerMapper;
-        private readonly Action<object, object> innerMapperRef;
+        private readonly Func<object, object, int, object> innerMapper;
+        private readonly Action<object, object, int> innerMapperRef;
         public ObjectMapper(TypePair pair)
         {
-            innerMapper = Cache<TypePair, Func<object, object, object>>.Get(pair);
-            innerMapperRef = Cache<TypePair, Action<object, object>>.Get(pair);
+            innerMapper = ExpressionBuilder.MapperCache.Get(pair);
+            innerMapperRef = ExpressionBuilder.MapperRefCache.Get(pair);
         }
-        protected override object MapCore(object source, object target)
+        protected override object MapCore(object source, object target, int depth)
         {
-            return innerMapper(source, target);
+            var result = innerMapper(source, target, depth);
+            innerMapperRef?.Invoke(source, result, depth);
+            return result;
         }
-        protected override object MapCoreWithReferenceProperty(object source, object target)
+        protected override object MapCoreLoop(object source, object target)
         {
             var key = GetKey(source);
             object rst;
@@ -29,9 +30,9 @@ namespace CodeMapper.Mappers
             {
                 return rst;
             }
-            var result = innerMapper(source, target);
+            var result = innerMapper(source, target, 0);
             MapperCache.Set(key, result);
-            innerMapperRef?.Invoke(source, result);
+            innerMapperRef?.Invoke(source, result, 0);
             return result;
         }
 

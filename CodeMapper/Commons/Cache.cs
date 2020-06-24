@@ -8,18 +8,18 @@ namespace CodeMapper.Commons
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TValue"></typeparam>
-    public static class Cache<TKey, TValue> where TValue : class
+    public class Cache<TKey, TValue> where TValue : class
     {
-        private static IDictionary<TKey, TValue> dictionary = new Dictionary<TKey, TValue>();
+        private IDictionary<TKey, TValue> dictionary = new Dictionary<TKey, TValue>();
 
-        public static bool HasKey(TKey key)
+        public bool HasKey(TKey key)
         {
             lock(dictionary)
             {
                 return dictionary.ContainsKey(key);
             }
         }
-        public static TValue Get(TKey key)
+        public TValue Get(TKey key)
         {
             lock(dictionary)
             {
@@ -32,7 +32,7 @@ namespace CodeMapper.Commons
                 return null;
             }
         }
-        public static void Remove(TKey key)
+        public void Remove(TKey key)
         {
             if(dictionary.ContainsKey(key))
             {
@@ -45,7 +45,7 @@ namespace CodeMapper.Commons
                 }
             }
         }
-        public static TValue GetOrAdd(TKey key, Func<TValue> creator)
+        public TValue GetOrAdd(TKey key, Func<TValue> creator)
         {
             lock(dictionary)
             {
@@ -71,7 +71,7 @@ namespace CodeMapper.Commons
                 return result;
             }
         }
-        public static void Add(TKey key, TValue value)
+        public void Add(TKey key, TValue value)
         {
             if(!dictionary.ContainsKey(key))
             {
@@ -85,7 +85,7 @@ namespace CodeMapper.Commons
             }
         }
 
-        public static void Clear()
+        public void Clear()
         {
             lock(dictionary)
             {

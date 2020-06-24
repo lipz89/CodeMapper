@@ -10,7 +10,7 @@ namespace CodeMapper.Builders
 {
     internal class ExpressionBuilder : MapperBuilder
     {
-        private static readonly Func<object, object, object> defaultMapper = (x, y) => y;
+        private static readonly Func<object, object, int, object> defaultMapper = (x, y, d) => y;
 
         private static readonly MethodInfo MapCoreMethod = typeof(MapperUtil).GetMethod("MapCore", BindingFlags.NonPublic | BindingFlags.Static);
         private static readonly MethodInfo MapCoresMethod = typeof(MapperUtil).GetMethod("MapCores", BindingFlags.NonPublic | BindingFlags.Static);
@@ -18,6 +18,8 @@ namespace CodeMapper.Builders
         private static readonly MethodInfo GetExpressionResultMethod = typeof(MapperUtil).GetMethod("GetExpressionResult", BindingFlags.NonPublic | BindingFlags.Static);
         private readonly IMapperConfig config;
 
+        public static readonly Cache<TypePair, Func<object, object, int, object>> MapperCache = new Cache<TypePair, Func<object, object, int, object>>();
+        public static readonly Cache<TypePair, Action<object, object, int>> MapperRefCache = new Cache<TypePair, Action<object, object, int>>();
         public ExpressionBuilder(IMapperConfig config) : base(config)
         {
             this.config = config;
@@ -49,7 +51,7 @@ namespace CodeMapper.Builders
                     {
                         mappingMembers.Add(item);
                     }
-                    else if(config.AutoMapReferenceProperty)
+                    else if(config.ReferencePropertyHandle != ReferencePropertyHandle.Ignore)
                     {
                         if(memberTypePair.IsEnumerableTypes)
                         {
@@ -64,15 +66,15 @@ namespace CodeMapper.Builders
             }
 
             var func = CreateMapper(typePair, equalMembers, mappingMembers);
-            Cache<TypePair, Func<object, object, object>>.Add(typePair, func);
+            MapperCache.Add(typePair, func);
             var action = CreateMapperRef(typePair, refMembers, collectionMembers, expressionMembers);
             if(action != null)
             {
-                Cache<TypePair, Action<object, object>>.Add(typePair, action);
+                MapperRefCache.Add(typePair, action);
             }
         }
 
-        private Func<object, object, object> CreateMapper(TypePair typePair, List<MappingMember> equals, List<MappingMember> mappers)
+        private Func<object, object, int, object> CreateMapper(TypePair typePair, List<MappingMember> equals, List<MappingMember> mappers)
         {
             if(equals.Count + mappers.Count == 0)
             {
@@ -80,12 +82,13 @@ namespace CodeMapper.Builders
             }
             return CreateMapperExpression(typePair, equals, mappers);
         }
-        private Func<object, object, object> CreateMapperExpression(TypePair typePair, List<MappingMember> equals, List<MappingMember> mappers)
+        private Func<object, object, int, object> CreateMapperExpression(TypePair typePair, List<MappingMember> equals, List<MappingMember> mappers)
         {
             var typeObject = typeof(object);
             var labelTarget = Expression.Label(typeObject, "result");
             var pSource = Expression.Parameter(typeObject, "source");
             var pTarget = Expression.Parameter(typeObject, "target");
+            var pDepth = Expression.Parameter(typeof(int), "depth");
             var vResult = Expression.Variable(typeObject, "r");
             var vSource = Expression.Variable(typePair.Source, "s");
             var vTarget = Expression.Variable(typePair.Target, "t");
@@ -108,7 +111,7 @@ namespace CodeMapper.Builders
             }
             if(mappers.Any())
             {
-                listExps.AddRange(SetMappers(vSource, vTarget, mappers));
+                listExps.AddRange(SetMappers(vSource, vTarget, pDepth, mappers));
             }
             listExps.Add(setTargetToResult);
 
@@ -126,11 +129,11 @@ namespace CodeMapper.Builders
 
             var body = Expression.Block(typeObject, vars, checkSourceNull, returnResult, label);
 
-            Expression<Func<object, object, object>> lambda = Expression.Lambda<Func<object, object, object>>(body, pSource, pTarget);
+            Expression<Func<object, object, int, object>> lambda = Expression.Lambda<Func<object, object, int, object>>(body, pSource, pTarget, pDepth);
             return lambda.Compile();
         }
 
-        private Action<object, object> CreateMapperRef(TypePair typePair, List<MappingMember> refs, List<MappingMember> colls, List<MappingMember> exps)
+        private Action<object, object, int> CreateMapperRef(TypePair typePair, List<MappingMember> refs, List<MappingMember> colls, List<MappingMember> exps)
         {
             if(refs.Count + colls.Count + exps.Count == 0)
             {
@@ -138,11 +141,12 @@ namespace CodeMapper.Builders
             }
             return CreateMapperRefExpression(typePair, refs, colls, exps);
         }
-        private Action<object, object> CreateMapperRefExpression(TypePair typePair, List<MappingMember> refs, List<MappingMember> colls, List<MappingMember> exps)
+        private Action<object, object, int> CreateMapperRefExpression(TypePair typePair, List<MappingMember> refs, List<MappingMember> colls, List<MappingMember> exps)
         {
             var typeObject = typeof(object);
             var pSource = Expression.Parameter(typeObject, "source");
             var pTarget = Expression.Parameter(typeObject, "target");
+            var pDepth = Expression.Parameter(typeof(int), "depth");
             var vSource = Expression.Variable(typePair.Source, "s");
             var vTarget = Expression.Variable(typePair.Target, "t");
             var nullValue = Expression.Constant(null);
@@ -155,11 +159,11 @@ namespace CodeMapper.Builders
             listExps.Add(setTarget);
             if(refs.Any())
             {
-                listExps.AddRange(SetMappers(vSource, vTarget, refs));
+                listExps.AddRange(SetMappers(vSource, vTarget, pDepth, refs));
             }
             if(colls.Any())
             {
-                listExps.AddRange(SetCollections(vSource, vTarget, colls));
+                listExps.AddRange(SetCollections(vSource, vTarget, pDepth, colls));
             }
             if(exps.Any())
             {
@@ -177,7 +181,7 @@ namespace CodeMapper.Builders
 
             var body = Expression.Block(vars, checkSourceNull);
 
-            Expression<Action<object, object>> lambda = Expression.Lambda<Action<object, object>>(body, pSource, pTarget);
+            Expression<Action<object, object, int>> lambda = Expression.Lambda<Action<object, object, int>>(body, pSource, pTarget, pDepth);
             return lambda.Compile();
         }
 
@@ -192,7 +196,7 @@ namespace CodeMapper.Builders
             }
             return list;
         }
-        private List<Expression> SetMappers(Expression source, Expression target, List<MappingMember> mappers)
+        private List<Expression> SetMappers(Expression source, Expression target, Expression depth, List<MappingMember> mappers)
         {
             var list = new List<Expression>();
             foreach(var item in mappers)
@@ -200,7 +204,7 @@ namespace CodeMapper.Builders
                 var sMember = Expression.MakeMemberAccess(source, item.Source);
                 var tMember = Expression.MakeMemberAccess(target, item.Target);
                 var method = MapCoreMethod.MakeGenericMethod(item.Source.GetMemberType(), item.Target.GetMemberType());
-                var convert = Expression.Call(method, sMember, tMember);
+                var convert = Expression.Call(method, sMember, tMember, depth);
                 if(item.Target.IsWritable())
                 {
                     list.Add(Expression.Assign(tMember, convert));
@@ -213,7 +217,7 @@ namespace CodeMapper.Builders
             return list;
         }
 
-        private List<Expression> SetCollections(Expression source, Expression target, List<MappingMember> mappers)
+        private List<Expression> SetCollections(Expression source, Expression target, Expression depth, List<MappingMember> mappers)
         {
             var list = new List<Expression>();
             foreach(var item in mappers)
@@ -228,7 +232,7 @@ namespace CodeMapper.Builders
                 if(sourceItemType != targetItemType)
                 {
                     var method = MapCoresMethod.MakeGenericMethod(sourceItemType, targetItemType);
-                    expList = Expression.Call(method, sMember);
+                    expList = Expression.Call(method, sMember, depth);
                 }
 
                 var moveMethod = MoveCollectionMethod.MakeGenericMethod(targetType, targetItemType);

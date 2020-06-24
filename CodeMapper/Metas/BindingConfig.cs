@@ -10,6 +10,7 @@ namespace CodeMapper.Metas
         private readonly Dictionary<string, string> _bindFields = new Dictionary<string, string>();
         private readonly HashSet<string> _expressionFields = new HashSet<string>();
         private readonly HashSet<string> _ignoreFields = new HashSet<string>();
+        private static readonly Cache<TypePair, BindingConfig> Cache = new Cache<TypePair, BindingConfig>();
 
         internal void BindExpression(string targetName)
         {
@@ -79,21 +80,21 @@ namespace CodeMapper.Metas
 
         public static BindingConfig Get(TypePair typePair)
         {
-            return Cache<TypePair, BindingConfig>.Get(typePair);
+            return Cache.Get(typePair);
         }
 
         public static void Add(TypePair typePair, BindingConfig bindingConfig)
         {
-            Cache<TypePair, BindingConfig>.Add(typePair, bindingConfig);
+            Cache.Add(typePair, bindingConfig);
         }
 
         public static bool Has(TypePair typePair)
         {
-            return Cache<TypePair, BindingConfig>.HasKey(typePair);
+            return Cache.HasKey(typePair);
         }
         public static void Remove(TypePair typePair)
         {
-            Cache<TypePair, BindingConfig>.Remove(typePair);
+            Cache.Remove(typePair);
         }
     }
     internal sealed class BindingConfig<TSource, TTarget> : BindingConfig, IBindingConfig<TSource, TTarget>
