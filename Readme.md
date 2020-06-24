@@ -67,7 +67,8 @@ CodeMapper.Mapper.Bind<Model1, Model2>(b =>
     b.Ignore(x => x.ID);
 });
 ```
-#ReferencePropertyHandle#
+- ReferencePropertyHandle 
+
 ```cs
 /// <summary> 忽略 </summary>
 Ignore,
