@@ -19,8 +19,10 @@ Stack<T>
 ```cs
 CodeMapper.Mapper.Config(config =>
 {
-    //默认false,为true时表示自动映射引用属性（会降低性能）
-    config.AutoMapReferenceProperty = false;
+    //指定映射引用类型属性的最大深度
+    config.ReferencePropertyHandle = CodeMapper.Metas.ReferencePropertyHandle.Depth;    
+    //指定映射引用类型属性的最大深度为10
+    config.MaxDepth = 10;
     //默认true,如果设置为false，需要为类型指定转换规则
     config.BindWhenNeed = true;
     //成员名称匹配规则映射
@@ -65,6 +67,16 @@ CodeMapper.Mapper.Bind<Model1, Model2>(b =>
     b.Ignore(x => x.ID);
 });
 ```
+#ReferencePropertyHandle#
+```cs
+/// <summary> 忽略 </summary>
+Ignore,
+/// <summary> 映射到指定深度 </summary>
+Depth,
+/// <summary>  循环映射(通过字典) </summary>
+Loop
+```
+
 
 ```
 类型转换时优先使用自定义转换方法
